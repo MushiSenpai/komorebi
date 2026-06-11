@@ -179,6 +179,52 @@ class Reminders extends Table with SyncColumns {
   BoolColumn get fired => boolean().withDefault(const Constant(false))();
 }
 
+/// A day-plan template, bound to weekdays (SPEC §5.8).
+class Routines extends Table with SyncColumns {
+  TextColumn get name => text()();
+
+  /// Bitmask of weekdays this routine applies to: Mon=1, Tue=2, Wed=4,
+  /// Thu=8, Fri=16, Sat=32, Sun=64.
+  IntColumn get weekdays => integer().withDefault(const Constant(0))();
+
+  RealColumn get sortOrder => real().withDefault(const Constant(0))();
+}
+
+/// One block inside a routine; the grid is half-hour slabs, so start and
+/// duration are multiples of 30 minutes.
+class RoutineBlocks extends Table with SyncColumns {
+  TextColumn get routineId => text().references(Routines, #id)();
+
+  IntColumn get startMinute => integer()();
+
+  IntColumn get durationMinutes =>
+      integer().withDefault(const Constant(30))();
+
+  TextColumn get title => text()();
+
+  IntColumn get color => integer().nullable()();
+}
+
+/// A materialized (and possibly hand-edited) plan block for one calendar day.
+class DayBlocks extends Table with SyncColumns {
+  /// Date-only (midnight local) the block belongs to.
+  DateTimeColumn get date => dateTime()();
+
+  IntColumn get startMinute => integer()();
+
+  IntColumn get durationMinutes =>
+      integer().withDefault(const Constant(30))();
+
+  TextColumn get title => text()();
+
+  IntColumn get color => integer().nullable()();
+
+  BoolColumn get done => boolean().withDefault(const Constant(false))();
+
+  /// Which routine block this was copied from, if any.
+  TextColumn get routineBlockId => text().nullable()();
+}
+
 /// Simple key-value store for app settings (theme, pomodoro durations...).
 @DataClassName('AppSetting')
 class AppSettings extends Table {

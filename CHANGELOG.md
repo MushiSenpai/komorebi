@@ -3,6 +3,25 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] — 2026-06-11 — Phase 1.5 "Day Plan"
+
+### Added
+- **Day Plan module** (SPEC §5.8, new "Plan" tab): plan your day in half-hour
+  slabs; blocks span multiple slabs (run 5:30–6:30, swim 7:00–8:00).
+- **Routines**: named templates bound to weekdays (e.g. Training day Mon–Fri,
+  Rest day Sat–Sun). Days materialize from their routine on first open;
+  per-day edits stay on that day; "Reset day to routine" available.
+- **Tracking**: check off blocks as the day goes; the header shows a gentle
+  day score ring (7/10).
+- **Monthly consistency ranks**: days with ≥80% blocks done are *good days*;
+  months earn Stoic / Disciplined / Steady / Wandering / Sprouting. Month
+  sheet with per-day dot calendar. Future days and quiet days are not judged.
+- Schema v2 migration (routines, routine_blocks, day_blocks).
+
+### Fixed
+- Repository mutations no longer read via stream `.first` (deadlocked under
+  widget-test fake-async; direct `get()` queries now).
+
 ## [0.2.0] — 2026-06-11 — Phase 1 "Tasks core"
 
 ### Added

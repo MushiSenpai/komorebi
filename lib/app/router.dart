@@ -5,14 +5,16 @@ import '../features/boards/boards_screen.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/notes/notes_screen.dart';
+import '../features/plan/plan_screen.dart';
 import '../features/play/play_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/today/today_screen.dart';
 import 'shell.dart';
 
-/// The six module destinations shown in the rail / bottom bar (SPEC §6).
+/// The module destinations shown in the rail / bottom bar (SPEC §6).
 enum KomorebiDestination {
   today('/today', 'Today', Icons.wb_sunny_outlined, Icons.wb_sunny),
+  plan('/plan', 'Plan', Icons.view_agenda_outlined, Icons.view_agenda),
   boards('/boards', 'Boards', Icons.view_kanban_outlined, Icons.view_kanban),
   calendar('/calendar', 'Calendar', Icons.calendar_month_outlined,
       Icons.calendar_month),
@@ -37,6 +39,7 @@ GoRouter buildRouter() => GoRouter(
       builder: (context, state, shell) => KomorebiShell(shell: shell),
       branches: [
         _branch(KomorebiDestination.today, const TodayScreen()),
+        _branch(KomorebiDestination.plan, const PlanScreen()),
         _branch(KomorebiDestination.boards, const BoardsScreen()),
         _branch(KomorebiDestination.calendar, const CalendarScreen()),
         _branch(KomorebiDestination.notes, const NotesScreen()),

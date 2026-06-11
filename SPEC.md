@@ -112,6 +112,11 @@ PomodoroSession  id, task_id (nullable), kind(work|break),
 GameScore id, mode, score(height), pieces_placed, duration, played_at,
           submitted(bool)                 -- pushed to Arena leaderboard yet?
 PlayerProfile (local copy) id, handle, avatar_id, friend_code, arena_enabled
+Routine        id, name, weekdays(bitmask Mon=1..Sun=64), sort_order
+RoutineBlock   id, routine_id, start_minute, duration_minutes, title, color
+               -- half-hour grid: start/duration are multiples of 30
+DayBlock       id, date(date-only), start_minute, duration_minutes, title,
+               color, done(bool), routine_block_id (nullable provenance)
 Reminder  id, target_kind(task|event), target_id, fire_at, fired
 Settings  key, value
 ```
@@ -315,12 +320,53 @@ goes through Arena; only game scores and the public profile do.
 - [ ] Migrate Arena onto the future Komorebi sync server so one backend serves
       both sync and leaderboards.
 
+### 5.8 Day Plan — half-hour routine planner (added 2026-06-11)
+
+The vision-plan tab: design your ideal day in **half-hour slabs** (wake 5:00,
+wash up 5:00–5:30, run 5:30–6:30, stretch, swim 7:00–8:00, breakfast…), then
+live against it and track how consistently you hit it.
+
+**V1 scope**
+- **Day grid:** 48 half-hour slabs; a block can span any number of consecutive
+  slabs (running = 2 slabs, swimming = 2, a deep-work block = 6). Tap an empty
+  slab to add a block (title + duration stepper in 30-min steps); tap a block
+  to edit, resize, or delete. Auto-scrolls to the morning.
+- **Routines (templates):** multiple named routines, each bound to weekdays —
+  e.g. *Training day* (Mon–Fri) and *Rest day* (Sat–Sun). The first time a date
+  is opened, it materializes a copy of the routine matching that weekday;
+  one-off changes (appointments, travel) edit only that day. "Reset day to
+  routine" discards the day's edits.
+- **Tracking & day score:** every block has a check-off; the day header shows
+  a gentle completion summary (7/10 blocks, with a ring).
+- **Monthly consistency ranks:** each month earns a calm, Ghibli-toned rank
+  from completion behaviour — days with ≥80% of blocks done count as *good
+  days*. Ranks: **Stoic** (≥95% of days good), **Disciplined** (≥80%),
+  **Steady** (≥60%), **Wandering** (≥40%), **Sprouting** (anything else —
+  every month starts as a seed). A month sheet shows the rank, good-day count,
+  and a small per-day dot calendar. No guilt mechanics: missed days fade, they
+  don't shame.
+- Tab name: **Plan**, between Today and Boards.
+
+**Future improvements**
+- [ ] Drag blocks to move/resize directly on the grid (v1 uses the editor).
+- [ ] "Promote today's edits into the routine" one-tap.
+- [ ] Per-block reminders ("running starts in 5 minutes") via the Phase 3
+      notification engine.
+- [ ] Show calendar events and scheduled tasks as ghost blocks behind the plan
+      (deep integration with §5.3).
+- [ ] Streaks & yearly consistency view (GitHub-style heatmap).
+- [ ] **Arena discipline leaderboard:** opt-in monthly consistency ranking
+      among friends (ties into §5.7) — share only the rank/percentage, never
+      the plan contents.
+- [ ] Energy tagging per block (focus/rest/move) with a daily balance glance.
+
 ---
 
 ## 6. App Shell & Cross-Cutting
 
-- **Navigation:** left rail (desktop) / bottom bar (mobile): Today · Boards ·
-  Calendar · Notes · Focus · Play. Global quick-add (task/event/note) from anywhere.
+- **Navigation:** left rail (desktop) / bottom bar (mobile): Today · Plan ·
+  Boards · Calendar · Notes · Focus · Play. Global quick-add (task/event/note)
+  from anywhere.
 - **Global search** (Ctrl/Cmd-K): tasks, notes, events in one palette.
 - **Settings:** theme (Meadow/Twilight/system), pomodoro durations, notification
   toggles, data export/import, database backup file.
@@ -345,6 +391,7 @@ goes through Arena; only game scores and the public profile do.
 |---|---|---|
 | **0. Skeleton** | Flutter app, Drift DB + full schema, theming tokens (both themes), nav shell, settings | Foundation & art direction |
 | **1. Tasks core** | Task CRUD, projects, todo views, quick-add, priorities/tags/subtasks | The data model works |
+| **1.5 Day Plan** | Half-hour slab planner, weekday routines, check-offs, monthly consistency ranks (§5.8, added 2026-06-11) | Daily rhythm loop |
 | **2. Kanban** | Boards, columns, drag & drop, card UI | Integration: same tasks, second view |
 | **3. Calendar** | Month/week/day, events, tasks-on-calendar, reminders/notifications | Scheduling loop |
 | **4. Notes** | Editor, wiki-links, backlinks, search, attachments, export | Knowledge layer |

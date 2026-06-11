@@ -30,7 +30,9 @@ void main() {
 
     // Wide test surface (800px) → navigation rail with all six modules.
     expect(find.byType(NavigationRail), findsOneWidget);
-    for (final label in ['Today', 'Boards', 'Calendar', 'Notes', 'Focus', 'Play']) {
+    for (final label in [
+      'Today', 'Plan', 'Boards', 'Calendar', 'Notes', 'Focus', 'Play',
+    ]) {
       expect(find.text(label), findsWidgets, reason: 'missing rail item $label');
     }
 
@@ -83,6 +85,49 @@ void main() {
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
     expect(find.text('water the plants'), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
+  testWidgets('day plan: add a block, check it off, day score updates',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_app(db));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Plan'));
+    await tester.pumpAndSettle();
+    expect(find.text('Today'), findsWidgets); // header + rail
+
+    // Tap the 05:00 slab and plan a one-hour run.
+    await tester.tap(find.text('05:00'));
+    await tester.pumpAndSettle();
+    expect(find.text('Plan a block'), findsOneWidget);
+    await tester.enterText(
+        find.descendant(
+            of: find.byType(AlertDialog), matching: find.byType(TextField)),
+        'Running');
+    await tester.tap(find.byTooltip('Longer'));
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Running'), findsOneWidget);
+    expect(find.text('05:00 – 06:00'), findsOneWidget);
+    expect(find.text('0/1'), findsOneWidget);
+
+    // Check it off — score chip becomes 1/1.
+    await tester.tap(find.byKey(find
+        .byWidgetPredicate((w) =>
+            w.key != null && '${w.key}'.contains('block-check-'))
+        .evaluate()
+        .single
+        .widget
+        .key!));
+    await tester.pumpAndSettle();
+    expect(find.text('1/1'), findsOneWidget);
 
     await _unmount(tester);
   });
