@@ -3,6 +3,27 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.6.0] — 2026-06-11 — Phase 4 "Notes"
+
+### Added
+- **Notes module** (SPEC §5.4): searchable note list with folders and pins,
+  markdown editor with toolbar (bold/italic/heading/list/link picker),
+  edit/preview toggle, and 600 ms autosave.
+- **[[Wiki-links]]**: link note↔note by title and note↔task with
+  `[[task:Task title]]`; links are materialized into NoteLinks on save.
+  In preview, wiki-links are tappable — notes open in place, tasks open the
+  task editor; unresolved note links offer one-tap "Create note".
+- **Backlinks both ways**: every note shows "Linked from…" chips, and the
+  task editor gains a "Referenced in" section that jumps to the note.
+- Export all notes as markdown files from the notes menu.
+- Adaptive layout: side-by-side list + editor on desktop, stacked on mobile.
+
+### Notes
+- Search is title/body substring for now; FTS5 indexing, image attachments,
+  and inline `[[` autocomplete moved to the module's future list.
+- Markdown rendering via flutter_markdown_plus (flutter_markdown is
+  discontinued).
+
 ## [0.5.0] — 2026-06-11 — Phase 3 "Calendar"
 
 ### Added

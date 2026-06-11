@@ -1,11 +1,13 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/db/database.dart';
 import '../../../data/providers.dart';
 import '../../../data/recurrence.dart';
+import '../../notes/providers.dart' as notes;
 import '../providers.dart';
 
 /// Opens the full task editor as a modal bottom sheet.
@@ -285,6 +287,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
                       style: Theme.of(context).textTheme.labelLarge),
                   _SubtaskList(parentId: task.id, controller: _newSubtask),
                 ],
+                _TaskBacklinks(taskId: task.id),
               ],
             ),
           ),
@@ -373,6 +376,45 @@ class _SubtaskList extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+/// Notes whose [[task:…]] links point at this task (SPEC §5.4 backlinks
+/// both ways). Tapping one jumps to it in the Notes tab.
+class _TaskBacklinks extends ConsumerWidget {
+  const _TaskBacklinks({required this.taskId});
+
+  final String taskId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sources =
+        ref.watch(notes.backlinksProvider(('task', taskId))).value ??
+            const [];
+    if (sources.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('Referenced in',
+              style: Theme.of(context).textTheme.labelLarge),
+          for (final note in sources)
+            ActionChip(
+              avatar: const Icon(Icons.description_outlined, size: 14),
+              label: Text(note.title),
+              onPressed: () {
+                ref.read(notes.selectedNoteIdProvider.notifier).set(note.id);
+                Navigator.of(context).pop();
+                context.go('/notes');
+              },
+            ),
+        ],
+      ),
     );
   }
 }

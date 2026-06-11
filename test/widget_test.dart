@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:komorebi/app/app.dart';
 import 'package:komorebi/data/db/database.dart';
 import 'package:komorebi/data/providers.dart';
+import 'package:komorebi/features/today/widgets/task_editor.dart';
 
 Widget _app(AppDatabase db) => ProviderScope(
       overrides: [databaseProvider.overrideWithValue(db)],
@@ -36,10 +37,10 @@ void main() {
       expect(find.text(label), findsWidgets, reason: 'missing rail item $label');
     }
 
-    // Switch to Notes (still a placeholder until Phase 4).
+    // Switch to Notes (empty library at first).
     await tester.tap(find.text('Notes'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('wiki-links'), findsOneWidget);
+    expect(find.textContaining('library in the forest'), findsOneWidget);
 
     // Open settings and switch to the Twilight theme.
     await tester.tap(find.byTooltip('Settings'));
@@ -165,6 +166,62 @@ void main() {
     expect(find.text('Edit event'), findsOneWidget);
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
+
+    await _unmount(tester);
+  });
+
+  testWidgets('notes: create, wiki-link to a task, backlink appears',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_app(db));
+    await tester.pumpAndSettle();
+
+    // A task to link against.
+    await tester.enterText(
+        find.byType(TextField).first, 'water the plants today');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Notes'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('library in the forest'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('New note'));
+    await tester.pumpAndSettle();
+
+    // Editor opens for the new note; write a body with a task wiki-link.
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Title'), 'Watering log');
+    final bodyField = find.byWidgetPredicate((w) =>
+        w is TextField && (w.decoration?.hintText ?? '').contains('markdown'));
+    await tester.enterText(
+        bodyField, 'Remember [[task:water the plants]] each morning.');
+    // Let the autosave debounce fire and links sync.
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    // Preview renders the wiki-link as a tappable link.
+    await tester.tap(find.text('Preview'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('task:water the plants'), findsOneWidget);
+
+    // The task editor now shows the note under "Referenced in"
+    // (scroll: the section sits below the sheet's fold).
+    await tester.tap(find.text('Today'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('water the plants'));
+    await tester.pumpAndSettle();
+    final sheetScrollable = find
+        .descendant(
+            of: find.byType(TaskEditorSheet),
+            matching: find.byType(Scrollable))
+        .first;
+    await tester.scrollUntilVisible(find.text('Referenced in'), 100,
+        scrollable: sheetScrollable);
+    expect(find.text('Referenced in'), findsOneWidget);
+    expect(find.text('Watering log'), findsOneWidget);
 
     await _unmount(tester);
   });

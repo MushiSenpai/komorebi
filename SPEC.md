@@ -198,16 +198,22 @@ timelines moved to future improvements)*
 
 ### 5.4 Notes (markdown + wiki-links)
 
-**V1 scope**
-- Markdown editor with live preview toggle; toolbar for common syntax.
-- `[[wiki-links]]` with autocomplete: link note↔note and note↔task
-  (`[[task:Fix router]]`). Renamed targets keep links (ID-based under the hood).
+**V1 scope** *(shipped 2026-06-11; attachments, FTS5, and inline
+autocomplete moved to future improvements)*
+- Markdown editor with preview toggle; toolbar for common syntax + a
+  link-picker that inserts `[[wiki-links]]`.
+- `[[wiki-links]]`: link note↔note by title and note↔task
+  (`[[task:Fix router]]`); links materialize into NoteLink rows on save and
+  are tappable in preview (unresolved note links offer one-tap create).
 - **Backlinks panel** on every note and every task ("referenced in…").
-- Folders + pins + tags; full-text search (SQLite FTS5) across titles and bodies.
-- Image attachments (stored in app dir, relative links).
-- Export: single note or whole vault as `.md` files.
+- Folders + pins; title/body substring search.
+- Export the whole vault as `.md` files.
 
 **Future improvements**
+- [ ] Inline `[[` autocomplete while typing (v1 uses the toolbar picker).
+- [ ] SQLite FTS5 full-text index when vaults outgrow substring search.
+- [ ] Image attachments (stored in app dir, relative links).
+- [ ] Note tags surfaced in UI (schema already supports them).
 - [ ] Graph view of the link network.
 - [ ] Daily notes + calendar integration (click a day → that day's note).
 - [ ] Templates (meeting note, decision record, weekly review).
