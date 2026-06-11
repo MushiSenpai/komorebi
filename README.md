@@ -61,7 +61,7 @@ actual phase commits (with demo data), so you can watch the app grow:
 | 5. Pomodoro | Task-linked timer, focus stats | ✅ done |
 | 6. Game | "Tsumiki Towers" survival mode (forge2d physics + custom renderer) | ✅ done |
 | 7. Polish | JSON export/import, journey gallery, v1.0 docs (sound & Android build → backlog) | ✅ done |
-| 8. Arena | Profiles, friend codes, shared leaderboards (PocketBase) | ⬜ v1.1 |
+| 8. Arena | Opt-in handle + shared leaderboards + daily duel (PocketBase, `server/arena/`) | ✅ v1.1 |
 
 ## Architecture
 

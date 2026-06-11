@@ -3,6 +3,23 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] — 2026-06-12 — Phase 8 "Arena"
+
+### Added
+- **Opt-in online leaderboards** (SPEC §5.7): join with a handle from the
+  Play tab; scores submit automatically (and queue offline) to a
+  self-hosted PocketBase at arena.theinvalid.me. Only your handle and game
+  scores ever leave the device.
+- **Daily duel**: everyone gets the same date-seeded piece sequence; the
+  day's board ranks best towers — fair async multiplayer, no realtime
+  needed. All-time survival board alongside.
+- `server/arena/`: one-command idempotent deploy (PocketBase + systemd +
+  Caddy + Cloudflare DNS + collection rules) and an operations README.
+
+### Notes
+- Real-time simultaneous racing stays on the roadmap: it needs a WebSocket
+  service, state sync, and anti-cheat to do honestly.
+
 ## [1.0.0] — 2026-06-12 — Phase 7 "Polish" · v1.0
 
 All seven core modules are live: tasks, day plan, kanban, calendar, notes,

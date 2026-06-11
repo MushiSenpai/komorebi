@@ -300,6 +300,15 @@ goes through Arena; only game scores and the public profile do.
 - App ships Arena-*capable*; the service URL is a config value, so the backend
   can be stood up after v1 without an app change.
 
+**Shipped 2026-06-12 (app + one-command server deploy):** opt-in Arena
+card on the Play tab (handle + anonymous client id; nothing but scores and
+the handle leaves the device), automatic submission of pending scores with
+offline retry, global *all-time survival* board, and the **daily duel** —
+the piece sequence is seeded from the UTC date so everyone stacks the same
+pieces; fair async multiplayer with no realtime infrastructure. Backend:
+PocketBase behind Caddy at arena.theinvalid.me (`server/arena/deploy.sh`).
+Real-time head-to-head remains a future improvement below.
+
 **V1 (first Arena release) scope**
 
 - **Profiles:** pick a handle + one of a set of hand-drawn Ghibli-style avatars

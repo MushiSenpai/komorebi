@@ -6,6 +6,8 @@ import '../../data/db/database.dart';
 import '../../data/providers.dart';
 import '../../data/repos/game_repository.dart';
 import '../../design/tokens.dart';
+import '../../services/arena_api.dart';
+import 'arena_providers.dart';
 import 'game/tower_view.dart';
 import 'game/tower_world.dart';
 
@@ -28,10 +30,19 @@ class PlayScreen extends ConsumerStatefulWidget {
 class _PlayScreenState extends ConsumerState<PlayScreen> {
   TowerWorld? _game;
   var _scoreSaved = false;
+  var _mode = 'survival';
 
-  void _start() {
+  @override
+  void initState() {
+    super.initState();
+    // Push any scores that missed the Arena (offline runs etc.).
+    Future(() => ref.read(arenaSyncProvider).syncPending()).ignore();
+  }
+
+  void _start({int? seed, String mode = 'survival'}) {
     setState(() {
-      _game = TowerWorld();
+      _mode = mode;
+      _game = TowerWorld(seed: seed);
       _scoreSaved = false;
       _game!.gameOver.addListener(_onGameOver);
     });
@@ -42,10 +53,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
     if (game == null || !game.gameOver.value || _scoreSaved) return;
     _scoreSaved = true;
     await ref.read(gameRepositoryProvider).saveScore(
+          mode: _mode,
           score: game.heightBlocks.value,
           piecesPlaced: game.piecesPlaced.value,
           durationSeconds: game.durationSeconds,
         );
+    await ref.read(arenaSyncProvider).syncPending();
+    ref.invalidate(arenaTopProvider);
     if (mounted) setState(() {});
   }
 
@@ -60,7 +74,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
     final game = _game;
     return Scaffold(
       body: SafeArea(
-        child: game == null ? _StartView(onStart: _start) : _gameView(game),
+        child: game == null
+            ? _StartView(
+                onStart: () => _start(),
+                onStartDaily: () =>
+                    _start(seed: dailySeed(), mode: dailyMode()),
+              )
+            : _gameView(game),
       ),
     );
   }
@@ -167,9 +187,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
 }
 
 class _StartView extends ConsumerWidget {
-  const _StartView({required this.onStart});
+  const _StartView({required this.onStart, required this.onStartDaily});
 
   final VoidCallback onStart;
+  final VoidCallback onStartDaily;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -200,12 +221,22 @@ class _StartView extends ConsumerWidget {
                   ?.copyWith(color: tokens.inkSoft),
             ),
             const SizedBox(height: 16),
-            Center(
-              child: FilledButton.icon(
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Start stacking'),
-                onPressed: onStart,
-              ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.icon(
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('Start stacking'),
+                  onPressed: onStart,
+                ),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.today),
+                  label: const Text('Daily duel'),
+                  onPressed: onStartDaily,
+                ),
+              ],
             ),
             if (scores.isNotEmpty) ...[
               const SizedBox(height: 24),
@@ -236,8 +267,168 @@ class _StartView extends ConsumerWidget {
                   ),
                 ),
             ],
+            const SizedBox(height: 24),
+            const _ArenaSection(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Opt-in online leaderboards (SPEC §5.7). Only game scores and your
+/// handle ever leave the device.
+class _ArenaSection extends ConsumerStatefulWidget {
+  const _ArenaSection();
+
+  @override
+  ConsumerState<_ArenaSection> createState() => _ArenaSectionState();
+}
+
+class _ArenaSectionState extends ConsumerState<_ArenaSection> {
+  final _handle = TextEditingController();
+
+  @override
+  void dispose() {
+    _handle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.komorebi;
+    final config = ref.watch(arenaConfigProvider).value;
+    if (config == null) return const SizedBox.shrink();
+
+    if (!config.enabled) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Arena', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text(
+                'Compete with friends on a shared leaderboard. Opt-in: '
+                'only your handle and game scores leave this device.',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: tokens.inkSoft),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _handle,
+                      decoration: const InputDecoration(
+                          hintText: 'Your handle', isDense: true),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: () async {
+                      if (_handle.text.trim().isEmpty) return;
+                      await ref
+                          .read(arenaConfigProvider.notifier)
+                          .enable(_handle.text);
+                      await ref.read(arenaSyncProvider).syncPending();
+                      ref.invalidate(arenaTopProvider);
+                    },
+                    child: const Text('Join'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text('Arena · ${config.handle}',
+                  style: Theme.of(context).textTheme.titleMedium),
+            ),
+            IconButton(
+              tooltip: 'Refresh leaderboards',
+              icon: const Icon(Icons.refresh, size: 18),
+              onPressed: () => ref.invalidate(arenaTopProvider),
+            ),
+            IconButton(
+              tooltip: 'Leave Arena',
+              icon: const Icon(Icons.logout, size: 18),
+              onPressed: () =>
+                  ref.read(arenaConfigProvider.notifier).disable(),
+            ),
+          ],
+        ),
+        _Leaderboard(title: "Today's duel", mode: dailyMode()),
+        const _Leaderboard(title: 'All-time survival', mode: 'survival'),
+      ],
+    );
+  }
+}
+
+class _Leaderboard extends ConsumerWidget {
+  const _Leaderboard({required this.title, required this.mode});
+
+  final String title;
+  final String mode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tokens = context.komorebi;
+    final scores = ref.watch(arenaTopProvider(mode));
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 4),
+          scores.when(
+            loading: () => Text('reaching the Arena…',
+                style: TextStyle(color: tokens.inkSoft, fontSize: 12)),
+            error: (e, _) => Text(
+              'Arena unreachable — scores are kept and will sync later.',
+              style: TextStyle(color: tokens.inkSoft, fontSize: 12),
+            ),
+            data: (rows) => rows.isEmpty
+                ? Text('No towers yet — be the first.',
+                    style: TextStyle(color: tokens.inkSoft, fontSize: 12))
+                : Column(
+                    children: [
+                      for (final (i, row) in rows.indexed)
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 1.5),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                  width: 22,
+                                  child: Text('${i + 1}.',
+                                      style: TextStyle(
+                                          color: tokens.inkSoft))),
+                              Expanded(child: Text(row.handle)),
+                              Text('${row.score} blocks',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
