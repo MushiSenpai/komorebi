@@ -131,6 +131,44 @@ void main() {
     await _unmount(tester);
   });
 
+  testWidgets('calendar: add an event, it shows in grid and agenda',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_app(db));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Calendar'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('An open day'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('New event'));
+    await tester.pumpAndSettle();
+    expect(find.text('New event'), findsOneWidget);
+
+    await tester.enterText(
+        find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.widgetWithText(TextField, 'Title')),
+        'Swimming');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    // Title appears twice: grid chip + agenda row.
+    expect(find.text('Swimming'), findsNWidgets(2));
+    expect(find.textContaining('An open day'), findsNothing);
+
+    // Open it from the agenda and check the editor loads it.
+    await tester.tap(find.text('Swimming').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Edit event'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await _unmount(tester);
+  });
+
   testWidgets('day plan: add a block, check it off, day score updates',
       (tester) async {
     final db = AppDatabase(NativeDatabase.memory());

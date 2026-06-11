@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'db/database.dart';
+import 'repos/event_repository.dart';
 import 'repos/task_repository.dart';
 
 /// The single app database. Overridden in main() with the opened instance
@@ -12,6 +13,10 @@ final databaseProvider = Provider<AppDatabase>(
 
 final taskRepositoryProvider = Provider<TaskRepository>(
   (ref) => TaskRepository(ref.watch(databaseProvider)),
+);
+
+final eventRepositoryProvider = Provider<EventRepository>(
+  (ref) => EventRepository(ref.watch(databaseProvider)),
 );
 
 /// Active theme mode; system = follow OS. Persisted to the settings table.

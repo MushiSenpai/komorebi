@@ -3,6 +3,27 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.0] — 2026-06-11 — Phase 3 "Calendar"
+
+### Added
+- **Calendar module** (SPEC §5.3): theme-native month grid with event chips
+  and task counts per day, plus a selected-day agenda listing events and
+  due/scheduled tasks side by side (tasks tap through to the task editor).
+- **Events**: timed, all-day, and recurring (shared RFC 5545 subset);
+  color palette readable in both themes; notes; full editor with delete.
+- **Reminders**: choose none / at start / 10 min / 1 hour / 1 day before;
+  an in-app reminder engine polls once a minute and fires local
+  notifications (Linux + Android via flutter_local_notifications) while the
+  app runs. OS-scheduled notifications remain a Phase 7 polish item.
+- Recurring series expand correctly into the visible window even when the
+  series starts long before it.
+
+### Notes
+- Week/day timeline views and drag-to-schedule (SPEC §5.3) are deferred to
+  the module's future-improvements list; month + agenda shipped first.
+- Android Gradle config gained core-library desugaring (required by
+  flutter_local_notifications); Android build verification stays in Phase 7.
+
 ## [0.4.0] — 2026-06-11 — Phase 2 "Kanban"
 
 ### Added

@@ -77,6 +77,18 @@ class TaskRepository {
     return tasks;
   }
 
+  /// Open tasks due or scheduled inside [from, to) — the calendar overlay
+  /// (SPEC §5.3: tasks rendered beside events).
+  Stream<List<Task>> watchDatedInWindow(DateTime from, DateTime to) {
+    Expression<bool> inWindow($TasksTable t, GeneratedColumn<DateTime> c) =>
+        c.isBiggerOrEqualValue(from) & c.isSmallerThanValue(to);
+    return (_db.select(_db.tasks)
+          ..where((t) =>
+              _open(t) & (inWindow(t, t.dueAt) | inWindow(t, t.scheduledAt))))
+        .watch()
+        .map(_sorted);
+  }
+
   Stream<List<Task>> watchSubtasks(String parentId) {
     return (_db.select(_db.tasks)
           ..where((t) =>

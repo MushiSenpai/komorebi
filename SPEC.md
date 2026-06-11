@@ -174,15 +174,18 @@ Integration rules this model enables:
 
 ### 5.3 Calendar (standalone)
 
-**V1 scope**
-- Month / week / day views, custom-skinned to the theme.
+**V1 scope** *(shipped 2026-06-11 as month view + day agenda; week/day
+timelines moved to future improvements)*
+- Month view, custom-skinned to the theme, with a selected-day agenda.
 - Native events (timed + all-day, recurring via rrule) **and** tasks with
   due/scheduled dates rendered side by side (tasks visually distinct, tappable
   through to the task editor).
-- Drag a task onto a day to schedule it; drag events to move/resize (week/day view).
-- Event reminders via local notifications.
+- Event reminders via local notifications (in-app engine polls while the app
+  runs; OS-scheduled notifications are Phase 7 polish).
 
 **Future improvements**
+- [ ] Week/day hour-timeline views; drag a task onto a day to schedule it;
+      drag events to move/resize.
 - [ ] Read-only overlay of the device OS calendar (mobile first).
 - [ ] CalDAV two-way sync (self-hostable — fits the sovereign stack better than
       Google-first); Google Calendar via CalDAV/API after that.

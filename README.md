@@ -35,7 +35,7 @@ Tokens live in [`lib/design/`](lib/design/) as a `ThemeExtension`
 | 1. Tasks core | Task CRUD, projects, Today/Upcoming views, quick-add | ✅ done |
 | 1.5 Day Plan | Half-hour slab planner, weekday routines, check-offs, monthly consistency ranks | ✅ done |
 | 2. Kanban | Boards, columns, drag & drop | ✅ done |
-| 3. Calendar | Month/week/day, events, tasks-on-calendar, reminders | ⬜ |
+| 3. Calendar | Month view + agenda, events, tasks-on-calendar, reminders | ✅ done (week/day timeline + drag-to-schedule moved to backlog) |
 | 4. Notes | Markdown, `[[wiki-links]]`, backlinks, search | ⬜ |
 | 5. Pomodoro | Task-linked timer, focus stats | ⬜ |
 | 6. Game | "Tsumiki Towers" survival mode (Flame + Forge2D) | ⬜ |
