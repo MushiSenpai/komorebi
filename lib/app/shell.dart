@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../design/tokens.dart';
+import '../features/focus/pomodoro_controller.dart';
 import 'router.dart';
 
 /// Adaptive app shell: navigation rail on wide layouts (desktop),
 /// bottom navigation bar on narrow ones (mobile). SPEC §6.
-class KomorebiShell extends StatelessWidget {
+class KomorebiShell extends ConsumerWidget {
   const KomorebiShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
@@ -16,8 +19,60 @@ class KomorebiShell extends StatelessWidget {
     shell.goBranch(index, initialLocation: index == shell.currentIndex);
   }
 
+  /// Floating countdown chip while a pomodoro runs and another tab is open
+  /// (SPEC §5.5: the timer is never lost).
+  Widget _withTimerChip(BuildContext context, WidgetRef ref, Widget body) {
+    final pomo = ref.watch(pomodoroProvider);
+    final focusIndex = KomorebiDestination.values
+        .indexOf(KomorebiDestination.focus);
+    if (!pomo.running || shell.currentIndex == focusIndex) return body;
+
+    final tokens = context.komorebi;
+    final remaining = pomo.remaining(DateTime.now());
+    final clamped = remaining.isNegative ? Duration.zero : remaining;
+    final mm = clamped.inMinutes.toString().padLeft(2, '0');
+    final ss = (clamped.inSeconds % 60).toString().padLeft(2, '0');
+
+    return Stack(
+      children: [
+        body,
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: Material(
+            color: tokens.ink,
+            borderRadius: BorderRadius.circular(24),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: () => _goBranch(focusIndex),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      pomo.phase == PomodoroPhase.work
+                          ? Icons.timer
+                          : Icons.free_breakfast,
+                      size: 16,
+                      color: tokens.paper,
+                    ),
+                    const SizedBox(width: 6),
+                    Text('$mm:$ss',
+                        style: TextStyle(color: tokens.paper, fontSize: 13)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isWide = MediaQuery.sizeOf(context).width >= _railBreakpoint;
     final destinations = KomorebiDestination.values;
 
@@ -56,7 +111,7 @@ class KomorebiShell extends StatelessWidget {
               ],
             ),
             const VerticalDivider(width: 1),
-            Expanded(child: shell),
+            Expanded(child: _withTimerChip(context, ref, shell)),
           ],
         ),
       );
@@ -80,7 +135,7 @@ class KomorebiShell extends StatelessWidget {
           ),
         ],
       ),
-      body: shell,
+      body: _withTimerChip(context, ref, shell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
         onDestinationSelected: _goBranch,

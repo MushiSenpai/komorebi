@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import '../data/repos/event_repository.dart';
 import '../data/repos/task_repository.dart';
+import 'notifications.dart';
 
 /// Fires due reminders as local notifications while the app runs.
 ///
@@ -17,26 +15,13 @@ class ReminderEngine {
 
   final EventRepository _events;
   final TaskRepository _tasks;
-  final _plugin = FlutterLocalNotificationsPlugin();
 
   Timer? _timer;
-  var _notificationId = 0;
 
   static const _checkEvery = Duration(seconds: 60);
 
   Future<void> start() async {
-    try {
-      await _plugin.initialize(
-        settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-          linux: LinuxInitializationSettings(defaultActionName: 'Open'),
-        ),
-      );
-    } catch (e) {
-      // No notification backend (tests, unsupported platform) — stay quiet.
-      debugPrint('Komorebi: notifications unavailable: $e');
-      return;
-    }
+    await Notifications.instance.init();
     _timer = Timer.periodic(_checkEvery, (_) => _tick());
     await _tick();
   }
@@ -53,7 +38,7 @@ class ReminderEngine {
       // Mark first: a notification backend hiccup must not re-fire forever.
       await _events.markReminderFired(reminder.id);
       if (body != null) {
-        await _show(body.$1, body.$2);
+        await Notifications.instance.show(body.$1, body.$2);
       }
     }
   }
@@ -74,25 +59,5 @@ class ReminderEngine {
       // Target was hard-deleted; nothing to announce.
     }
     return null;
-  }
-
-  Future<void> _show(String title, String body) async {
-    try {
-      await _plugin.show(
-        id: _notificationId++,
-        title: title,
-        body: body,
-        notificationDetails: const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'komorebi_reminders',
-            'Reminders',
-            channelDescription: 'Event and task reminders',
-          ),
-          linux: LinuxNotificationDetails(),
-        ),
-      );
-    } catch (e) {
-      debugPrint('Komorebi: could not show notification: $e');
-    }
   }
 }

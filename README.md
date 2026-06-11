@@ -55,7 +55,7 @@ actual phase commits (with demo data), so you can watch the app grow:
 | 2. Kanban | Boards, columns, drag & drop | ✅ done |
 | 3. Calendar | Month view + agenda, events, tasks-on-calendar, reminders | ✅ done (week/day timeline + drag-to-schedule moved to backlog) |
 | 4. Notes | Markdown editor + preview, `[[wiki-links]]`, backlinks, search, export | ✅ done (attachments & FTS5 moved to backlog) |
-| 5. Pomodoro | Task-linked timer, focus stats | ⬜ |
+| 5. Pomodoro | Task-linked timer, focus stats | ✅ done |
 | 6. Game | "Tsumiki Towers" survival mode (Flame + Forge2D) | ⬜ |
 | 7. Polish | Art, sound, animations, export/import, Android build | ⬜ |
 | 8. Arena | Profiles, friend codes, shared leaderboards (PocketBase) | ⬜ v1.1 |

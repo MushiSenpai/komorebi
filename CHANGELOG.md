@@ -3,6 +3,21 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.7.0] — 2026-06-11 — Phase 5 "Focus"
+
+### Added
+- **Pomodoro module** (SPEC §5.5): work/short/long-break cycle (every 4th
+  break is long), customizable durations, big timer ring on the Focus tab.
+- **Task linking**: dedicate a session to any open task; completed and
+  abandoned sessions are logged (abandoning still counts the minutes,
+  marked incomplete — no guilt).
+- **Stats**: minutes today, a 7-day bar chart, and the week's most-focused
+  tasks, all live.
+- **Break prompt**: when a break starts, a card offers the tower game.
+- **Floating timer chip**: leave the Focus tab mid-session and a small
+  countdown chip follows you, tap to return.
+- Phase-change local notifications via a shared notification service.
+
 ## [0.6.1] — 2026-06-11 — "Markdown, gently"
 
 ### Added
