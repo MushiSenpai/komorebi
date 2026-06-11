@@ -3,6 +3,20 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] — 2026-06-12 — Phase 7 "Polish" · v1.0
+
+All seven core modules are live: tasks, day plan, kanban, calendar, notes,
+focus, and the tower game — one local database, deeply linked.
+
+### Added
+- **Export / import everything** (Settings → Data): the whole database as
+  one JSON file, lossless round-trip, import merges by id.
+- Journey gallery refreshed with Notes, Focus, and Tsumiki Towers.
+
+### Notes
+- Deferred to the roadmap: UI sounds, Android build verification,
+  OS-scheduled notifications, seasonal art.
+
 ## [0.8.0] — 2026-06-12 — Phase 6 "Tsumiki Towers"
 
 ### Added

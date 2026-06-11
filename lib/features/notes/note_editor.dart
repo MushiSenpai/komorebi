@@ -128,8 +128,8 @@ class _NoteEditorPaneState extends ConsumerState<NoteEditorPane> {
       final checked = m.group(2)!.toLowerCase() == 'x';
       final text = m.group(3)!;
       lines[i] = checked
-          ? '${m.group(1)}[☑](check:$i) ~~$text~~'
-          : '${m.group(1)}[☐](check:$i) $text';
+          ? '${m.group(1)}- [☑](check:$i) ~~$text~~'
+          : '${m.group(1)}- [☐](check:$i) $text';
     }
     return lines.join('\n').replaceAllMapped(
           NoteRepository.wikiLinkPattern,
