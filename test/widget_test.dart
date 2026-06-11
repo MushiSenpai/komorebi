@@ -242,6 +242,23 @@ void main() {
     await _unmount(tester);
   });
 
+  testWidgets('play tab shows the start view with controls hint',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_app(db));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Play'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tsumiki Towers'), findsOneWidget);
+    expect(find.text('Start stacking'), findsOneWidget);
+    expect(find.textContaining('three splashes'), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
   testWidgets('day plan: add a block, check it off, day score updates',
       (tester) async {
     final db = AppDatabase(NativeDatabase.memory());

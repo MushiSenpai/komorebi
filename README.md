@@ -40,6 +40,7 @@ actual phase commits (with demo data), so you can watch the app grow:
 | **Phase 1 — Tasks.** The Today view fills up: quick-add bar with `tomorrow !p1 #tag @project` syntax, priority dots, tags, recurrence. | ![Phase 1, Today view](docs/screenshots/phase1-tasks-today.png) |
 | **Phase 1.5 — Day Plan.** Design your ideal day in half-hour slabs (run 5:30–6:30, swim 7–8…), bind routines to weekdays, check blocks off against a day score; months earn calm consistency ranks. | ![Phase 1.5, Day Plan](docs/screenshots/phase1.5-day-plan.png) |
 | **Phase 2 — Kanban.** The same tasks, board view: per-project columns, long-press drag & drop, WIP limits. | ![Phase 2, Kanban board](docs/screenshots/phase2-kanban.png) |
+| **Phase 6 — Tsumiki Towers.** Physics tetrominoes on a tiny island: three splashes and the tower rests. Height in blocks is the score; local high scores feed the future Arena leaderboard. | ![Phase 6, Tsumiki Towers](docs/screenshots/phase6-tsumiki-towers.png) |
 | **Phase 3 — Calendar.** Events (weekly swim class, monthly rent, all-day picnics) and dated tasks side by side, with a day agenda and local-notification reminders. | ![Phase 3, Calendar](docs/screenshots/phase3-calendar.png) |
 
 *(Regenerate these anytime: check out a phase commit and seed demo data with
@@ -56,7 +57,7 @@ actual phase commits (with demo data), so you can watch the app grow:
 | 3. Calendar | Month view + agenda, events, tasks-on-calendar, reminders | ✅ done (week/day timeline + drag-to-schedule moved to backlog) |
 | 4. Notes | Markdown editor + preview, `[[wiki-links]]`, backlinks, search, export | ✅ done (attachments & FTS5 moved to backlog) |
 | 5. Pomodoro | Task-linked timer, focus stats | ✅ done |
-| 6. Game | "Tsumiki Towers" survival mode (Flame + Forge2D) | ⬜ |
+| 6. Game | "Tsumiki Towers" survival mode (forge2d physics + custom renderer) | ✅ done |
 | 7. Polish | Art, sound, animations, export/import, Android build | ⬜ |
 | 8. Arena | Profiles, friend codes, shared leaderboards (PocketBase) | ⬜ v1.1 |
 

@@ -3,6 +3,23 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.0] — 2026-06-12 — Phase 6 "Tsumiki Towers"
+
+### Added
+- **The break game** (SPEC §5.6): survival tower stacking on a tiny island.
+  Real rigid-body physics (forge2d) — tetromino pieces wobble, slide, and
+  topple; three splashes into the sea end the run; the score is the tallest
+  stable height in blocks.
+- Controls: ← → move, ↑ rotate, ↓ soft drop, space hard drop, plus on-screen
+  touch buttons; gentle wind above ten blocks.
+- Local high-score table (Arena-ready `submitted` flag per SPEC §5.7); the
+  pomodoro break card links straight here.
+
+### Changed
+- Renders through a custom CustomPainter + ticker instead of a game engine
+  layer: smaller dependency surface, theme-native art (sky, sea, island),
+  identical physics.
+
 ## [0.7.0] — 2026-06-11 — Phase 5 "Focus"
 
 ### Added
