@@ -208,6 +208,10 @@ autocomplete moved to future improvements)*
 - **Backlinks panel** on every note and every task ("referenced in…").
 - Folders + pins; title/body substring search.
 - Export the whole vault as `.md` files.
+- **Gentle onboarding (added 2026-06-11):** interactive `- [ ]` checklists
+  (tap to tick in preview, done items struck through), a "you type → you
+  get" syntax help dialog, and a pinned starter guide note seeded on first
+  visit.
 
 **Future improvements**
 - [ ] Inline `[[` autocomplete while typing (v1 uses the toolbar picker).

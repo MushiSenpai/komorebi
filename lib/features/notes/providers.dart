@@ -38,6 +38,11 @@ class NoteFolderFilterNotifier extends Notifier<String?> {
   String? build() => null;
 }
 
+/// Creates the pinned "How to write notes" guide on the very first visit.
+final welcomeNoteProvider = FutureProvider<void>((ref) {
+  return ref.watch(noteRepositoryProvider).ensureWelcomeNote();
+});
+
 final notesListProvider = StreamProvider<List<Note>>((ref) {
   return ref.watch(noteRepositoryProvider).watchNotes(
         folderId: ref.watch(noteFolderFilterProvider),

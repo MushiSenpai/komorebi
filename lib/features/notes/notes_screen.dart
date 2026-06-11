@@ -19,6 +19,7 @@ class NotesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(welcomeNoteProvider); // seed the guide on first visit
     final selected = ref.watch(selectedNoteIdProvider);
     final isWide = MediaQuery.sizeOf(context).width >= _wideBreakpoint;
 

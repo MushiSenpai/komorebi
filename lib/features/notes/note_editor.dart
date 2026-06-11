@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:markdown/markdown.dart' as md;
 
 import '../../data/db/database.dart';
 import '../../data/repos/note_repository.dart';
@@ -116,13 +117,31 @@ class _NoteEditorPaneState extends ConsumerState<NoteEditorPane> {
     _scheduleSave();
   }
 
-  /// Rewrites `[[X]]` to markdown links on a `wiki:` scheme so the preview
-  /// renders them as tappable links.
+  /// Rewrites the friendly syntaxes into tappable markdown links:
+  /// checklist lines (`- [ ]`) become `check:<line>` links with the done
+  /// text struck through, and `[[X]]` becomes a `wiki:` link.
   String _preprocess(String markdown) {
-    return markdown.replaceAllMapped(
-      NoteRepository.wikiLinkPattern,
-      (m) => '[${m.group(1)}](wiki:${Uri.encodeComponent(m.group(1)!)})',
-    );
+    final lines = markdown.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      final m = NoteRepository.checklistPattern.firstMatch(lines[i]);
+      if (m == null) continue;
+      final checked = m.group(2)!.toLowerCase() == 'x';
+      final text = m.group(3)!;
+      lines[i] = checked
+          ? '${m.group(1)}[☑](check:$i) ~~$text~~'
+          : '${m.group(1)}[☐](check:$i) $text';
+    }
+    return lines.join('\n').replaceAllMapped(
+          NoteRepository.wikiLinkPattern,
+          (m) => '[${m.group(1)}](wiki:${Uri.encodeComponent(m.group(1)!)})',
+        );
+  }
+
+  void _toggleChecklist(int line) {
+    final toggled = NoteRepository.toggleChecklistLine(_body.text, line);
+    if (toggled == _body.text) return;
+    setState(() => _body.text = toggled);
+    _scheduleSave();
   }
 
   Future<void> _openWikiTarget(String raw) async {
@@ -260,9 +279,20 @@ class _NoteEditorPaneState extends ConsumerState<NoteEditorPane> {
                 onPressed: _preview ? null : () => _insertAtLineStart('- '),
               ),
               IconButton(
+                tooltip: 'Checklist item',
+                icon: const Icon(Icons.checklist, size: 20),
+                onPressed:
+                    _preview ? null : () => _insertAtLineStart('- [ ] '),
+              ),
+              IconButton(
                 tooltip: 'Insert wiki-link',
                 icon: const Icon(Icons.add_link, size: 20),
                 onPressed: _preview ? null : _insertWikiLink,
+              ),
+              IconButton(
+                tooltip: 'Markdown help',
+                icon: const Icon(Icons.help_outline, size: 20),
+                onPressed: () => _showSyntaxHelp(context),
               ),
               const Spacer(),
               SegmentedButton<bool>(
@@ -288,10 +318,15 @@ class _NoteEditorPaneState extends ConsumerState<NoteEditorPane> {
               ? Markdown(
                   data: _preprocess(_body.text),
                   padding: const EdgeInsets.all(16),
+                  extensionSet: md.ExtensionSet.gitHubFlavored,
                   onTapLink: (text, href, title) {
-                    if (href != null && href.startsWith('wiki:')) {
+                    if (href == null) return;
+                    if (href.startsWith('wiki:')) {
                       _openWikiTarget(
                           Uri.decodeComponent(href.substring(5)));
+                    } else if (href.startsWith('check:')) {
+                      final line = int.tryParse(href.substring(6));
+                      if (line != null) _toggleChecklist(line);
                     }
                   },
                 )
@@ -375,6 +410,76 @@ Future<WikiTarget?> _pickWikiTarget(BuildContext context, WidgetRef ref) {
                 child: Text('Tip: link a task by typing '
                     '[[task:Task title]] directly')),
           ]),
+        ),
+      ],
+    ),
+  );
+}
+
+/// "You type → you get" cheat-sheet for the markdown the editor supports.
+void _showSyntaxHelp(BuildContext context) {
+  const rows = [
+    ('# Title', 'A big heading'),
+    ('## Section', 'A smaller heading'),
+    ('**bold**', 'Bold text'),
+    ('*italic*', 'Italic text'),
+    ('- item', 'A bullet point'),
+    ('1. item', 'A numbered point'),
+    ('- [ ] water plants', 'A checkbox — tap it in Preview to tick it; '
+        'done items get crossed out'),
+    ('[[Note title]]', 'A link to another note'),
+    ('[[task:Task title]]', 'A link to a task'),
+  ];
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Markdown, gently'),
+      content: SizedBox(
+        width: 420,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Write plain text; a few marks add shape. '
+                'Flip to Preview to see the result.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              for (final (syntax, meaning) in rows)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 160,
+                        child: Text(
+                          syntax,
+                          style: const TextStyle(
+                              fontFamily: 'monospace', fontSize: 13),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(meaning)),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 8),
+              Text(
+                'The pinned "How to write notes" note shows all of this '
+                'in action.',
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Got it'),
         ),
       ],
     ),

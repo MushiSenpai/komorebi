@@ -37,10 +37,10 @@ void main() {
       expect(find.text(label), findsWidgets, reason: 'missing rail item $label');
     }
 
-    // Switch to Notes (empty library at first).
+    // Switch to Notes — the pinned starter guide greets first-time users.
     await tester.tap(find.text('Notes'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('library in the forest'), findsOneWidget);
+    expect(find.text('How to write notes'), findsOneWidget);
 
     // Open settings and switch to the Twilight theme.
     await tester.tap(find.byTooltip('Settings'));
@@ -186,26 +186,42 @@ void main() {
 
     await tester.tap(find.text('Notes'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('library in the forest'), findsOneWidget);
+    expect(find.text('How to write notes'), findsOneWidget,
+        reason: 'starter guide is seeded on first visit');
 
     await tester.tap(find.byTooltip('New note'));
     await tester.pumpAndSettle();
 
-    // Editor opens for the new note; write a body with a task wiki-link.
+    // Editor opens for the new note; write a body with a task wiki-link
+    // and a checklist item.
     await tester.enterText(
         find.widgetWithText(TextField, 'Title'), 'Watering log');
     final bodyField = find.byWidgetPredicate((w) =>
         w is TextField && (w.decoration?.hintText ?? '').contains('markdown'));
     await tester.enterText(
-        bodyField, 'Remember [[task:water the plants]] each morning.');
+        bodyField,
+        'Remember [[task:water the plants]] each morning.\n'
+        '- [ ] refill the can');
     // Let the autosave debounce fire and links sync.
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
-    // Preview renders the wiki-link as a tappable link.
+    // Preview renders the wiki-link as a tappable link and the checklist
+    // as a tappable checkbox: tapping it ticks the source line.
     await tester.tap(find.text('Preview'));
     await tester.pumpAndSettle();
     expect(find.textContaining('task:water the plants'), findsOneWidget);
+    expect(find.textContaining('☐'), findsOneWidget);
+    await tester.tapOnText(find.textRange.ofSubstring('☐'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('☑'), findsOneWidget);
+    // Let the autosave debounce write the toggled body.
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+    final saved = await db.select(db.notes).get();
+    expect(
+        saved.firstWhere((n) => n.title == 'Watering log').body,
+        contains('- [x] refill the can'));
 
     // The task editor now shows the note under "Referenced in"
     // (scroll: the section sits below the sheet's fold).

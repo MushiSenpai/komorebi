@@ -18,6 +18,22 @@ class NoteRepository {
   /// Matches `[[target]]`; `task:` prefix links to a task by title.
   static final wikiLinkPattern = RegExp(r'\[\[([^\[\]]+)\]\]');
 
+  /// Matches a checklist line: `- [ ] text` or `- [x] text`.
+  static final checklistPattern = RegExp(r'^(\s*)- \[( |x|X)\] (.*)$');
+
+  /// Flips the checkbox on [lineIndex] of [body]; returns body unchanged if
+  /// that line is not a checklist item.
+  static String toggleChecklistLine(String body, int lineIndex) {
+    final lines = body.split('\n');
+    if (lineIndex < 0 || lineIndex >= lines.length) return body;
+    final match = checklistPattern.firstMatch(lines[lineIndex]);
+    if (match == null) return body;
+    final checked = match.group(2)!.toLowerCase() == 'x';
+    lines[lineIndex] =
+        '${match.group(1)}- [${checked ? ' ' : 'x'}] ${match.group(3)}';
+    return lines.join('\n');
+  }
+
   // ---- Notes ---------------------------------------------------------------
 
   /// Pinned first, then most recently updated. [query] filters on title and
@@ -170,6 +186,71 @@ class NoteRepository {
         .watch()
         .map((rows) => rows.map((r) => r.readTable(_db.notes)).toList());
   }
+
+  // ---- Onboarding ---------------------------------------------------------
+
+  static const _welcomeFlag = 'notes_welcome_created';
+
+  /// The pinned starter guide (SPEC §5.4 onboarding). Created once, ever —
+  /// deleting it does not bring it back.
+  Future<void> ensureWelcomeNote() async {
+    if (await _db.getSetting(_welcomeFlag) != null) return;
+    await _db.setSetting(_welcomeFlag, '1');
+    final id = await createNote(
+      title: 'How to write notes',
+      body: welcomeBody,
+    );
+    await updateNote(id, const NotesCompanion(pinned: Value(true)));
+  }
+
+  static const welcomeBody = '''
+Welcome! Notes are written in *markdown* — plain text with a few simple
+marks. **Switch between Edit and Preview** (top right) while reading this
+note and the syntax will explain itself. This note is yours: change it,
+or delete it once you feel at home.
+
+## Headings
+
+Start a line with # for a big heading, ## for a smaller one (this section
+is a ##), ### for smaller still.
+
+## Emphasis
+
+Wrap words in one star for *italic*, two for **bold**. The toolbar buttons
+above do this for you.
+
+## Lists
+
+Start lines with a dash for bullets:
+
+- like this
+- and this
+
+Number lines for an ordered list:
+
+1. first
+2. second
+
+## Things to do
+
+Type `- [ ]` to make a checkbox. In **Preview**, tap the box to tick it —
+done items get crossed out:
+
+- [ ] water the plants
+- [ ] morning run
+- [x] this one is already done
+
+## Linking your thinking
+
+Wrap a note title in double square brackets to link it, like
+[[How to write notes]] (that one points right back here). Link a task with
+[[task:Task title]]. In Preview, links are tappable, and linked notes and
+tasks show a "Linked from" / "Referenced in" trail back to this note.
+
+## One more thing
+
+Everything saves by itself as you type. Happy writing 🌿
+''';
 
   // ---- Export -----------------------------------------------------------------
 

@@ -97,6 +97,32 @@ void main() {
     });
   });
 
+  group('checklists & onboarding', () {
+    test('toggleChecklistLine flips only checklist lines', () {
+      const body = 'intro\n- [ ] water\n- [x] Run\nplain - [ ] not at start';
+      expect(NoteRepository.toggleChecklistLine(body, 1),
+          'intro\n- [x] water\n- [x] Run\nplain - [ ] not at start');
+      expect(NoteRepository.toggleChecklistLine(body, 2),
+          'intro\n- [ ] water\n- [ ] Run\nplain - [ ] not at start');
+      expect(NoteRepository.toggleChecklistLine(body, 0), body);
+      expect(NoteRepository.toggleChecklistLine(body, 3), body,
+          reason: 'mid-line checkbox text is not a checklist item');
+      expect(NoteRepository.toggleChecklistLine(body, 99), body);
+    });
+
+    test('welcome note is created once, ever', () async {
+      await repo.ensureWelcomeNote();
+      final first = await repo.watchNotes().first;
+      expect(first.single.title, 'How to write notes');
+      expect(first.single.pinned, isTrue);
+
+      await repo.deleteNote(first.single.id);
+      await repo.ensureWelcomeNote();
+      expect(await repo.watchNotes().first, isEmpty,
+          reason: 'deleting the guide must not resurrect it');
+    });
+  });
+
   test('export writes one markdown file per note', () async {
     await repo.createNote(title: 'Garden ideas', body: 'tomatoes');
     await repo.createNote(title: 'Trip: plan?', body: 'pack light');

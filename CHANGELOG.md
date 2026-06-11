@@ -3,6 +3,19 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.6.1] — 2026-06-11 — "Markdown, gently"
+
+### Added
+- **Interactive checklists in notes**: type `- [ ]` (or use the new toolbar
+  button); in Preview the checkbox is tappable — ticked items flip to
+  `- [x]` in the source and render crossed out.
+- **Markdown help (?)** in the editor toolbar: a "you type → you get"
+  cheat-sheet covering headings, emphasis, lists, checklists, and
+  wiki-links.
+- **Starter guide**: a pinned "How to write notes" note is seeded on the
+  first visit, written so flipping Edit/Preview teaches the syntax by
+  example. Deleting it does not bring it back.
+
 ## [0.6.0] — 2026-06-11 — Phase 4 "Notes"
 
 ### Added
