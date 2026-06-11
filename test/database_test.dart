@@ -52,8 +52,11 @@ void main() {
     expect(task.description, isEmpty);
   });
 
-  test('uuid v7 ids are time-ordered', () {
+  test('uuid v7 ids are time-ordered', () async {
     final a = newId();
+    // v7 ordering is only guaranteed across milliseconds; same-ms ids fall
+    // back to random bits (flaked on fast CI runners).
+    await Future<void>.delayed(const Duration(milliseconds: 2));
     final b = newId();
     expect(a.compareTo(b), lessThan(0));
   });
