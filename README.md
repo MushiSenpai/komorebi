@@ -32,7 +32,7 @@ Tokens live in [`lib/design/`](lib/design/) as a `ThemeExtension`
 | Phase (SPEC §7) | Deliverable | Status |
 |---|---|---|
 | 0. Skeleton | App shell, both themes, full DB schema, settings | ✅ done |
-| 1. Tasks core | Task CRUD, projects, Today/Upcoming views, quick-add | ⬜ |
+| 1. Tasks core | Task CRUD, projects, Today/Upcoming views, quick-add | ✅ done |
 | 2. Kanban | Boards, columns, drag & drop | ⬜ |
 | 3. Calendar | Month/week/day, events, tasks-on-calendar, reminders | ⬜ |
 | 4. Notes | Markdown, `[[wiki-links]]`, backlinks, search | ⬜ |

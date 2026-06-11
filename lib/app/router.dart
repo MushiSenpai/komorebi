@@ -28,7 +28,9 @@ enum KomorebiDestination {
   final IconData activeIcon;
 }
 
-final router = GoRouter(
+/// Builds a fresh router per app instance (a global router would leak
+/// navigation state across widget tests and hot restarts).
+GoRouter buildRouter() => GoRouter(
   initialLocation: KomorebiDestination.today.path,
   routes: [
     StatefulShellRoute.indexedStack(

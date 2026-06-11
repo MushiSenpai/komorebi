@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'db/database.dart';
+import 'repos/task_repository.dart';
 
 /// The single app database. Overridden in main() with the opened instance
 /// (and in tests with an in-memory one).
 final databaseProvider = Provider<AppDatabase>(
   (ref) => throw UnimplementedError('databaseProvider must be overridden'),
+);
+
+final taskRepositoryProvider = Provider<TaskRepository>(
+  (ref) => TaskRepository(ref.watch(databaseProvider)),
 );
 
 /// Active theme mode; system = follow OS. Persisted to the settings table.

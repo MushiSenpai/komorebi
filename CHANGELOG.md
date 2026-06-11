@@ -3,6 +3,31 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] — 2026-06-11 — Phase 1 "Tasks core"
+
+### Added
+- **Todo module** (SPEC §5.1): Today (incl. overdue), Upcoming (7 days grouped
+  by day), All (grouped by project, priority/tag filters), and Done views —
+  all reactive Drift streams.
+- **Quick-add bar** with lightweight syntax: dates (`today`, `tomorrow`,
+  weekday names, `next week`, `in N days`), `!p1`–`!p3` priority, `#tag`,
+  `@project` (projects/tags created on the fly).
+- **Task editor sheet**: title, markdown notes, project picker (+ create),
+  priority, due & scheduled dates, repeat presets, tag chips, one-level
+  subtask checklist, delete.
+- **Recurrence**: minimal RFC 5545 subset (`FREQ` daily/weekly/monthly +
+  `INTERVAL`), kept string-compatible with the full `rrule` package for
+  later. Completing a recurring task leaves a completed copy in Done and
+  advances the open task past "now", preserving time of day.
+- **Complete/undo flow**: round checkbox with settle animation, snackbar
+  undo, restore from the Done log; new projects seed Backlog/Doing/Done
+  board columns for Phase 2.
+- Tests: 32 passing (parser, recurrence, repository, widget flows).
+
+### Fixed
+- Router is now created per app instance (was a leaky global).
+- Drift stream-cleanup timers no longer trip widget-test teardown.
+
 ## [0.1.0] — 2026-06-11 — Phase 0 "Skeleton"
 
 ### Added

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../data/providers.dart';
 import '../design/theme.dart';
 import 'router.dart';
+
+/// One router per ProviderScope, so each app (and each widget test) gets
+/// fresh navigation state.
+final routerProvider = Provider<GoRouter>((ref) => buildRouter());
 
 class KomorebiApp extends ConsumerWidget {
   const KomorebiApp({super.key});
@@ -18,7 +23,7 @@ class KomorebiApp extends ConsumerWidget {
       theme: meadowTheme(),
       darkTheme: twilightTheme(),
       themeMode: themeMode,
-      routerConfig: router,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }
