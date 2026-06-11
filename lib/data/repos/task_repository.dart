@@ -118,6 +118,16 @@ class TaskRepository {
     });
   }
 
+  /// One-shot tag fetch for a single task (the editor's initial load).
+  Future<List<Tag>> tagsForTask(String taskId) async {
+    final rows = await (_db.select(_db.taskTags)
+          ..where((t) => t.taskId.equals(taskId)))
+        .join([
+      innerJoin(_db.tags, _db.tags.id.equalsExp(_db.taskTags.tagId)),
+    ]).get();
+    return rows.map((row) => row.readTable(_db.tags)).toList();
+  }
+
   Stream<List<Project>> watchProjects() {
     return (_db.select(_db.projects)
           ..where((p) => p.deletedAt.isNull() & p.archived.equals(false))
@@ -243,6 +253,92 @@ class TaskRepository {
         updatedAt: Value(now),
       ));
     });
+  }
+
+  // ---- Board (SPEC §5.2) ---------------------------------------------------
+
+  Stream<List<BoardColumn>> watchBoardColumns(String projectId) {
+    return (_db.select(_db.boardColumns)
+          ..where((c) => c.deletedAt.isNull() & c.projectId.equals(projectId))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .watch();
+  }
+
+  /// Open top-level tasks of a project, in manual board order.
+  Stream<List<Task>> watchProjectTasks(String projectId) {
+    return (_db.select(_db.tasks)
+          ..where((t) => _open(t) & t.projectId.equals(projectId))
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .watch();
+  }
+
+  /// Moves a task into [columnId] at [sortOrder]; callers compute the order
+  /// value (midpoint to insert between cards, max+1 to append).
+  Future<void> moveTaskToColumn(String taskId, String columnId,
+      {required double sortOrder}) {
+    return updateTask(
+      taskId,
+      TasksCompanion(
+        columnId: Value(columnId),
+        sortOrder: Value(sortOrder),
+      ),
+    );
+  }
+
+  Future<String> addColumn(String projectId, String name) async {
+    final existing = await _columnsQuery(projectId).get();
+    final id = newId();
+    await _db.into(_db.boardColumns).insert(BoardColumnsCompanion.insert(
+          id: id,
+          projectId: projectId,
+          name: name,
+          sortOrder: Value(
+              existing.isEmpty ? 0 : existing.last.sortOrder + 1),
+        ));
+    return id;
+  }
+
+  Future<void> updateColumn(String id, BoardColumnsCompanion changes) {
+    return (_db.update(_db.boardColumns)..where((c) => c.id.equals(id)))
+        .write(changes.copyWith(updatedAt: Value(DateTime.now())));
+  }
+
+  /// Soft-deletes a column; its tasks fall back to the board's first column
+  /// (or to no column if none remain).
+  Future<void> deleteColumn(String id) async {
+    await _db.transaction(() async {
+      final column = await (_db.select(_db.boardColumns)
+            ..where((c) => c.id.equals(id)))
+          .getSingle();
+      await updateColumn(id, BoardColumnsCompanion(
+        deletedAt: Value(DateTime.now()),
+      ));
+      final remaining = await _columnsQuery(column.projectId).get();
+      final fallback =
+          remaining.where((c) => c.id != id).firstOrNull;
+      await (_db.update(_db.tasks)..where((t) => t.columnId.equals(id)))
+          .write(TasksCompanion(
+        columnId: Value(fallback?.id),
+        updatedAt: Value(DateTime.now()),
+      ));
+    });
+  }
+
+  /// Swaps the sort positions of two columns (left/right drag).
+  Future<void> swapColumns(BoardColumn a, BoardColumn b) async {
+    await _db.transaction(() async {
+      await updateColumn(a.id,
+          BoardColumnsCompanion(sortOrder: Value(b.sortOrder)));
+      await updateColumn(b.id,
+          BoardColumnsCompanion(sortOrder: Value(a.sortOrder)));
+    });
+  }
+
+  SimpleSelectStatement<$BoardColumnsTable, BoardColumn> _columnsQuery(
+      String projectId) {
+    return _db.select(_db.boardColumns)
+      ..where((c) => c.deletedAt.isNull() & c.projectId.equals(projectId))
+      ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]);
   }
 
   static const defaultColumns = ['Backlog', 'Doing', 'Done'];

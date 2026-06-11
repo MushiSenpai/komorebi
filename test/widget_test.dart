@@ -89,6 +89,48 @@ void main() {
     await _unmount(tester);
   });
 
+  testWidgets('board: create project, add card, card opens editor',
+      (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_app(db));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Boards'));
+    await tester.pumpAndSettle();
+    expect(find.text('No projects yet'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('New project'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.descendant(
+            of: find.byType(AlertDialog), matching: find.byType(TextField)),
+        'Garden');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    // Default columns appear.
+    expect(find.textContaining('Backlog'), findsOneWidget);
+    expect(find.textContaining('Doing'), findsOneWidget);
+    expect(find.textContaining('Done'), findsOneWidget);
+
+    // Add a card to Backlog via the quick field.
+    await tester.enterText(find.widgetWithText(TextField, '+ add card').first,
+        'plant tomatoes');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(find.text('plant tomatoes'), findsOneWidget);
+    expect(find.textContaining('Backlog  ·  1'), findsOneWidget);
+
+    // Card tap opens the shared task editor.
+    await tester.tap(find.text('plant tomatoes'));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit task'), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
   testWidgets('day plan: add a block, check it off, day score updates',
       (tester) async {
     final db = AppDatabase(NativeDatabase.memory());

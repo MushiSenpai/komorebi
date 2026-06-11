@@ -55,7 +55,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
   Future<void> _load() async {
     final repo = ref.read(taskRepositoryProvider);
     final task = await repo.getTask(widget.taskId);
-    final tagsByTask = await repo.watchTagsByTask().first;
+    final tags = await repo.tagsForTask(widget.taskId);
     if (!mounted) return;
     setState(() {
       _task = task;
@@ -66,7 +66,7 @@ class _TaskEditorSheetState extends ConsumerState<TaskEditorSheet> {
       _dueAt = task.dueAt;
       _scheduledAt = task.scheduledAt;
       _rrule = task.rrule;
-      _tagIds = (tagsByTask[task.id] ?? []).map((t) => t.id).toSet();
+      _tagIds = tags.map((t) => t.id).toSet();
     });
   }
 

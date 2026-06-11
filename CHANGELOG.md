@@ -3,6 +3,25 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] — 2026-06-11 — Phase 2 "Kanban"
+
+### Added
+- **Boards module** (SPEC §5.2): one kanban board per project with a project
+  chip switcher and inline project creation.
+- Columns: add, rename, delete (tasks fall back to the first column),
+  drag a column header onto another to swap positions, and **soft WIP
+  limits** — the column header blushes when exceeded.
+- Cards: long-press drag between/within columns (drop on a card to insert
+  above it, on a column to append); card shows priority dot, due chip, tag
+  chips, and subtask progress; tap opens the shared task editor.
+- Quick "+ add card" field at the bottom of every column.
+- Tasks created via "@project" quick-add (no column yet) appear in the first
+  column automatically.
+
+### Fixed
+- Task editor initial load no longer reads tags via a stream (same
+  fake-async deadlock class as 0.3.0's fix).
+
 ## [0.3.0] — 2026-06-11 — Phase 1.5 "Day Plan"
 
 ### Added

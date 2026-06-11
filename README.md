@@ -34,7 +34,7 @@ Tokens live in [`lib/design/`](lib/design/) as a `ThemeExtension`
 | 0. Skeleton | App shell, both themes, full DB schema, settings | ✅ done |
 | 1. Tasks core | Task CRUD, projects, Today/Upcoming views, quick-add | ✅ done |
 | 1.5 Day Plan | Half-hour slab planner, weekday routines, check-offs, monthly consistency ranks | ✅ done |
-| 2. Kanban | Boards, columns, drag & drop | ⬜ |
+| 2. Kanban | Boards, columns, drag & drop | ✅ done |
 | 3. Calendar | Month/week/day, events, tasks-on-calendar, reminders | ⬜ |
 | 4. Notes | Markdown, `[[wiki-links]]`, backlinks, search | ⬜ |
 | 5. Pomodoro | Task-linked timer, focus stats | ⬜ |
