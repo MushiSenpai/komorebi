@@ -27,6 +27,24 @@ Two hand-tuned themes, switchable in Settings or following the OS:
 Tokens live in [`lib/design/`](lib/design/) as a `ThemeExtension`
 (`KomorebiTokens`) — widgets never hardcode colors.
 
+## The journey
+
+Komorebi is being built phase by phase — each phase ends with a runnable app,
+a green test suite, and a commit. These screenshots are rebuilt from the
+actual phase commits (with demo data), so you can watch the app grow:
+
+| | |
+|---|---|
+| **Phase 0 — Skeleton.** The shell, six empty modules, and both themes. Twilight (*Spirited Away* evening)… | ![Phase 0, Twilight shell](docs/screenshots/phase0-shell-twilight.png) |
+| …and Meadow (*Totoro* daytime), switchable in Settings and persisted. | ![Phase 0, Meadow shell](docs/screenshots/phase0-shell-meadow.png) |
+| **Phase 1 — Tasks.** The Today view fills up: quick-add bar with `tomorrow !p1 #tag @project` syntax, priority dots, tags, recurrence. | ![Phase 1, Today view](docs/screenshots/phase1-tasks-today.png) |
+| **Phase 1.5 — Day Plan.** Design your ideal day in half-hour slabs (run 5:30–6:30, swim 7–8…), bind routines to weekdays, check blocks off against a day score; months earn calm consistency ranks. | ![Phase 1.5, Day Plan](docs/screenshots/phase1.5-day-plan.png) |
+| **Phase 2 — Kanban.** The same tasks, board view: per-project columns, long-press drag & drop, WIP limits. | ![Phase 2, Kanban board](docs/screenshots/phase2-kanban.png) |
+| **Phase 3 — Calendar.** Events (weekly swim class, monthly rent, all-day picnics) and dated tasks side by side, with a day agenda and local-notification reminders. | ![Phase 3, Calendar](docs/screenshots/phase3-calendar.png) |
+
+*(Regenerate these anytime: check out a phase commit and seed demo data with
+`flutter test test/demo_seed_test.dart --dart-define=SEED_DB=<path>`.)*
+
 ## Project status
 
 | Phase (SPEC §7) | Deliverable | Status |

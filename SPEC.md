@@ -186,6 +186,9 @@ timelines moved to future improvements)*
 **Future improvements**
 - [ ] Week/day hour-timeline views; drag a task onto a day to schedule it;
       drag events to move/resize.
+- [ ] **Year view** (requested 2026-06-11): 12-month overview with busy-day
+      shading (event/task density heatmap), tap a month to jump to it; pairs
+      naturally with the Day Plan yearly consistency heatmap (§5.8).
 - [ ] Read-only overlay of the device OS calendar (mobile first).
 - [ ] CalDAV two-way sync (self-hostable — fits the sovereign stack better than
       Google-first); Google Calendar via CalDAV/API after that.
