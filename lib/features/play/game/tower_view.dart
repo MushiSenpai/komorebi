@@ -62,11 +62,14 @@ class _TowerViewState extends State<TowerView> {
     world.softDrop = pressed.contains(LogicalKeyboardKey.arrowDown) ||
         pressed.contains(LogicalKeyboardKey.keyS);
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+      // Space rotates (user feedback 2026-06-12); enter hard-drops.
+      if (event.logicalKey == LogicalKeyboardKey.space ||
+          event.logicalKey == LogicalKeyboardKey.arrowUp ||
           event.logicalKey == LogicalKeyboardKey.keyW) {
         world.rotateActive();
       }
-      if (event.logicalKey == LogicalKeyboardKey.space) {
+      if (event.logicalKey == LogicalKeyboardKey.enter ||
+          event.logicalKey == LogicalKeyboardKey.numpadEnter) {
         world.hardDrop();
       }
     }

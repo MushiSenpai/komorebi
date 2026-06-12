@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:komorebi/data/db/database.dart';
 import 'package:komorebi/data/repos/game_repository.dart';
 import 'package:komorebi/features/play/game/pieces.dart';
+import 'package:komorebi/features/play/game/tower_world.dart';
 
 void main() {
   group('pieces', () {
@@ -13,6 +14,21 @@ void main() {
         expect(piece.cells.toSet(), hasLength(4),
             reason: '${piece.name} has overlapping cells');
       }
+    });
+
+    test('descent ramps every five pieces and never maxes out', () {
+      expect(TowerWorld.descentSpeedFor(0), 1.4, reason: 'gentle start');
+      expect(TowerWorld.descentSpeedFor(4), 1.4);
+      expect(TowerWorld.descentSpeedFor(5), closeTo(1.65, 0.001));
+      expect(TowerWorld.descentSpeedFor(10), closeTo(1.9, 0.001));
+      expect(TowerWorld.descentSpeedFor(500), 3.2,
+          reason: 'capped — it should stay playable forever');
+    });
+
+    test('camera keeps the island low with sky above', () {
+      final world = TowerWorld(seed: 1);
+      expect(world.cameraTargetY, lessThanOrEqualTo(-3.5),
+          reason: 'screen centre sits well above the island');
     });
 
     test('height converts to whole blocks', () {

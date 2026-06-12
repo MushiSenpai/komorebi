@@ -218,7 +218,7 @@ class _StartView extends ConsumerWidget {
             Text(
               'Stack falling blocks on a tiny island. Real physics, real '
               'wobbles — three splashes and the run is over.\n'
-              '← → move · ↑ rotate · ↓ faster · space drop',
+              '← → move · space rotate · ↓ faster · enter drop',
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme

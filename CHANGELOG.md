@@ -3,6 +3,14 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.2] — 2026-06-12
+
+### Changed (game feel, from first playtest feedback)
+- The island now sits low on screen with generous sky above the tower.
+- Pieces start slower (1.4 m/s) and speed up a touch every five landed
+  pieces, capped at 3.2 m/s — it gets harder, never hopeless.
+- **Space rotates** the piece (with ↑/W); Enter hard-drops.
+
 ## [1.1.1] — 2026-06-12
 
 ### Fixed

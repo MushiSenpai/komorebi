@@ -63,7 +63,12 @@ class TowerWorld {
   static const islandHalfWidth = 2.4;
   static const islandTopY = 0.0;
   static const waterY = 6.0;
-  static const spawnHeight = 8.0;
+  static const spawnHeight = 7.0;
+
+  /// Descent speed ramps gently: slow start, +0.25 m/s every five landed
+  /// pieces, capped well short of unplayable (user feedback 2026-06-12).
+  static double descentSpeedFor(int piecesPlaced) =>
+      min(1.4 + 0.25 * (piecesPlaced ~/ 5), 3.2);
 
   final startedAt = DateTime.now();
   final pieces = <TowerPiece>[];
@@ -77,8 +82,9 @@ class TowerWorld {
   var moveRight = false;
   var softDrop = false;
 
-  /// Camera target: keeps the action centred as the tower grows.
-  double get cameraTargetY => min(1.5, towerTopY + 3.0);
+  /// Camera target: the island sits low on screen with generous sky above
+  /// for the falling piece; follows the tower as it grows.
+  double get cameraTargetY => min(islandTopY, towerTopY + 2.5) - 3.5;
 
   int get durationSeconds => DateTime.now().difference(startedAt).inSeconds;
 
@@ -138,8 +144,8 @@ class TowerWorld {
     if (piece != null) {
       if (!piece.landed) {
         final vx = moveLeft == moveRight ? 0.0 : (moveLeft ? -3.5 : 3.5);
-        final vy =
-            max(piece.body.linearVelocity.y, softDrop ? 7.0 : 2.2);
+        final vy = max(piece.body.linearVelocity.y,
+            softDrop ? 7.0 : descentSpeedFor(piecesPlaced.value));
         piece.body.linearVelocity = Vector2(vx, vy);
         // Gentle wind once the tower passes ten blocks (SPEC §5.6).
         if (heightToBlocks(islandTopY - towerTopY) >= 10) {
