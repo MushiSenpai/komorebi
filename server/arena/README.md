@@ -59,12 +59,19 @@ The app dedupes the leaderboard to each player's best.
 - Known accepted risks for a friends leaderboard: scores are
   client-reported (replay verification is on the SPEC §5.7 roadmap) and
   `played_at` is client-supplied. `client_id` enables tracing/cleanup.
-- **Action item:** `/opt/pocketbase/pb_data` is not yet in any backup
-  rotation — add it to the VPS backup plan.
+- **Backups (live 2026-06-12):** nightly systemd timer (03:30 UTC) stops
+  the service for ~2 s, tars `pb_data`, keeps 14 local dailies in
+  `/var/backups/arena`, and mirrors them to the Hetzner Storage Box
+  (`arena-backups/`, dedicated read-only-purpose SSH key). Script:
+  `server/arena/backup.sh` (installed at `/usr/local/sbin/arena-backup.sh`);
+  check with `systemctl list-timers arena-backup.timer` and
+  `journalctl -t arena-backup`.
 
 ## Operations
 
 - Logs: `journalctl -u pocketbase -f`
 - Admin UI: `https://arena.theinvalid.me/_/` (superuser credentials file)
-- Data lives in `/opt/pocketbase/pb_data` — include it in VPS backups.
+- Data lives in `/opt/pocketbase/pb_data` — backed up nightly (above).
+- Restore: stop pocketbase, untar a snapshot over `/opt/pocketbase`,
+  `chown -R pocketbase:pocketbase`, start.
 - Wipe a day's board: delete `mode = 'daily-YYYYMMDD'` rows in the admin UI.
