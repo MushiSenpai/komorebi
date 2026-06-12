@@ -19,10 +19,12 @@ CRED_FILE=$HOME/.config/mushishi-infra/pocketbase-arena.credentials
 echo "==> 1/5 PocketBase binary + systemd"
 $SSH 'bash -s' <<EOF
 set -e
+command -v unzip >/dev/null || sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q unzip
 sudo mkdir -p /opt/pocketbase
 cd /tmp
 curl -sL -o pb.zip https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip
 sudo unzip -o -q pb.zip pocketbase -d /opt/pocketbase && rm pb.zip
+sudo chmod 755 /opt/pocketbase/pocketbase
 sudo useradd -r -s /usr/sbin/nologin pocketbase 2>/dev/null || true
 sudo chown -R pocketbase:pocketbase /opt/pocketbase
 sudo tee /etc/systemd/system/pocketbase.service >/dev/null <<'UNIT'
@@ -46,9 +48,13 @@ ReadWritePaths=/opt/pocketbase
 WantedBy=multi-user.target
 UNIT
 sudo systemctl daemon-reload
-sudo systemctl enable --now pocketbase
-sleep 2
-curl -fsS http://127.0.0.1:8090/api/health >/dev/null && echo "   pocketbase healthy"
+sudo systemctl enable pocketbase >/dev/null 2>&1
+sudo systemctl restart pocketbase
+for i in 1 2 3 4 5; do
+  sleep 2
+  curl -fsS http://127.0.0.1:8090/api/health >/dev/null && { echo "   pocketbase healthy"; break; }
+  [ "\$i" = 5 ] && { echo "   pocketbase failed to start:"; sudo journalctl -u pocketbase -n 10 --no-pager; exit 1; }
+done
 EOF
 
 echo "==> 2/5 Superuser (created once; credentials -> $CRED_FILE)"
