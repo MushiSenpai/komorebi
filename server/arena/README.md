@@ -45,6 +45,23 @@ The app dedupes the leaderboard to each player's best.
   anti-cheat — tracked in SPEC §5.7 future improvements, deliberately not
   faked here.
 
+## Security posture (audited 2026-06-12)
+
+- VPS: UFW allows only 22/80/443; SSH is key-only (passwords and
+  keyboard-interactive disabled, root key-only); fail2ban and
+  unattended-upgrades active.
+- PocketBase binds to 127.0.0.1 only, runs as a dedicated non-login user
+  under a hardened unit (`NoNewPrivileges`, `ProtectSystem=strict`); the
+  only public surface is Caddy with auto-TLS.
+- Collection rules: anonymous create is score-capped; update/delete are
+  admin-only. **Rate limits enabled** server-side: 12 score submits/min,
+  60 board reads/min, 120 req/min overall per IP.
+- Known accepted risks for a friends leaderboard: scores are
+  client-reported (replay verification is on the SPEC §5.7 roadmap) and
+  `played_at` is client-supplied. `client_id` enables tracing/cleanup.
+- **Action item:** `/opt/pocketbase/pb_data` is not yet in any backup
+  rotation — add it to the VPS backup plan.
+
 ## Operations
 
 - Logs: `journalctl -u pocketbase -f`
