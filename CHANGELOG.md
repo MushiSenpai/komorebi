@@ -3,6 +3,17 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.1] — 2026-06-12
+
+### Fixed
+- **The blank game** (reported on first play): the game view's Stack sized
+  itself to its only non-positioned child — the game-over builder's
+  `SizedBox.shrink()` — collapsing the entire view to 0×0 during play and
+  snapping visible only at game over. `StackFit.expand` with the game as
+  the base child fixes it; a regression test pins the layout.
+- The game loop now drives repaints through the painter's `repaint`
+  listenable on a steady 30 fps timer instead of per-frame setState.
+
 ## [1.1.0] — 2026-06-12 — Phase 8 "Arena"
 
 ### Added

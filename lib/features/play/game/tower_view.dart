@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../../../design/tokens.dart';
@@ -19,34 +19,37 @@ class TowerView extends StatefulWidget {
   State<TowerView> createState() => _TowerViewState();
 }
 
-class _TowerViewState extends State<TowerView>
-    with SingleTickerProviderStateMixin {
-  late final Ticker _ticker;
+class _TowerViewState extends State<TowerView> {
+  // The simulation runs on a plain event-loop timer and repaints through
+  // the painter's `repaint` listenable — no setState per frame. (A 60fps
+  // setState storm from a frame-callback Ticker starves the Linux GTK
+  // embedder's presenter on some Xorg setups: frames were produced but
+  // almost never shown.)
+  static const _step = Duration(milliseconds: 33);
+  Timer? _timer;
+  final _frame = ValueNotifier<int>(0);
   final _focus = FocusNode();
-  Duration _last = Duration.zero;
   double _cameraY = 0;
 
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker(_tick)..start();
+    _timer = Timer.periodic(_step, (_) => _tick());
   }
 
   @override
   void dispose() {
-    _ticker.dispose();
+    _timer?.cancel();
+    _frame.dispose();
     _focus.dispose();
     super.dispose();
   }
 
-  void _tick(Duration elapsed) {
-    final dt = _last == Duration.zero
-        ? 1 / 60.0
-        : (elapsed - _last).inMicroseconds / 1e6;
-    _last = elapsed;
-    widget.world.update(min(dt, 1 / 20));
+  void _tick() {
+    const dt = 0.033;
+    widget.world.update(dt);
     _cameraY += (widget.world.cameraTargetY - _cameraY) * min(1, dt * 3);
-    if (mounted) setState(() {});
+    _frame.value++;
   }
 
   void _onKeyEvent(KeyEvent event) {
@@ -76,15 +79,18 @@ class _TowerViewState extends State<TowerView>
       focusNode: _focus,
       autofocus: true,
       onKeyEvent: _onKeyEvent,
-      child: CustomPaint(
-        painter: _TowerPainter(
-          world: widget.world,
-          cameraY: _cameraY,
-          sky: tokens.paper,
-          sea: tokens.coolAccent,
-          island: tokens.accent,
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: _TowerPainter(
+            world: widget.world,
+            cameraY: () => _cameraY,
+            sky: tokens.paper,
+            sea: tokens.coolAccent,
+            island: tokens.accent,
+            repaint: _frame,
+          ),
+          child: const SizedBox.expand(),
         ),
-        child: const SizedBox.expand(),
       ),
     );
   }
@@ -97,10 +103,11 @@ class _TowerPainter extends CustomPainter {
     required this.sky,
     required this.sea,
     required this.island,
-  });
+    required Listenable repaint,
+  }) : super(repaint: repaint);
 
   final TowerWorld world;
-  final double cameraY;
+  final double Function() cameraY;
   final Color sky;
   final Color sea;
   final Color island;
@@ -113,7 +120,7 @@ class _TowerPainter extends CustomPainter {
 
     canvas.save();
     // World → screen: centre x, camera-followed y.
-    canvas.translate(size.width / 2, size.height / 2 - cameraY * zoom);
+    canvas.translate(size.width / 2, size.height / 2 - cameraY() * zoom);
     canvas.scale(zoom);
 
     // Sea.

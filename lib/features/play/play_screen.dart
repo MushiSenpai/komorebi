@@ -87,9 +87,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
 
   Widget _gameView(TowerWorld game) {
     final tokens = context.komorebi;
+    // StackFit.expand with the game as the base (non-positioned) child:
+    // a Stack sizes itself to its largest non-positioned child, and the
+    // game-over builder's SizedBox.shrink() once collapsed this whole view
+    // to 0x0 during play (the "blank game" bug).
     return Stack(
+      fit: StackFit.expand,
       children: [
-        Positioned.fill(child: TowerView(world: game)),
+        TowerView(world: game),
         Positioned(
           top: 8,
           left: 12,

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:komorebi/app/app.dart';
 import 'package:komorebi/data/db/database.dart';
 import 'package:komorebi/data/providers.dart';
+import 'package:komorebi/features/play/game/tower_view.dart';
 import 'package:komorebi/features/today/widgets/task_editor.dart';
 
 Widget _app(AppDatabase db) => ProviderScope(
@@ -255,6 +256,23 @@ void main() {
     expect(find.text('Tsumiki Towers'), findsOneWidget);
     expect(find.text('Start stacking'), findsOneWidget);
     expect(find.textContaining('three splashes'), findsOneWidget);
+
+    // Start a run: the game view must lay out at full size with the HUD
+    // visible (regression: a SizedBox.shrink overlay branch once collapsed
+    // the Stack to 0x0 during play — the "blank game" bug).
+    await tester.tap(find.text('Start stacking'));
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+    final gameSize = tester.getSize(find.byType(TowerView));
+    expect(gameSize.width, greaterThan(100));
+    expect(gameSize.height, greaterThan(100));
+
+    // Abandon cleanly so the game timer stops before teardown.
+    await tester.tap(find.byTooltip('Abandon run'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Start stacking'), findsOneWidget);
 
     await _unmount(tester);
   });
