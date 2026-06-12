@@ -1,5 +1,8 @@
 # Releasing Komorebi
 
+> Running this from a Mac with Claude Code? Use the executable version:
+> [docs/mac-session-spec.md](mac-session-spec.md).
+
 The pathway from this repo to the three app stores. CI already verifies
 every push compiles for **Android (APK artifact), iOS (unsigned), and
 macOS** — the steps below are the signing/store work that platforms require
