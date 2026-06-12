@@ -3,6 +3,21 @@
 All notable changes to Komorebi are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] — 2026-06-12 — "Every platform has a path"
+
+### Added
+- **Android verified**: local SDK toolchain set up; release APK builds
+  (65.5 MB). CI now builds the APK on every push and attaches it as an
+  artifact. Store-ready conditional signing via `android/key.properties`
+  (example file included; falls back to debug signing for development).
+- **iOS & macOS targets added** and compiled on every push by a macOS CI
+  runner (`flutter build ios --no-codesign` + `flutter build macos`);
+  macOS sandbox entitlements include network client for the Arena.
+- **docs/RELEASING.md**: the full runbook from this repo to Google Play,
+  the App Store (TestFlight), and the Mac App Store / notarized DMG.
+- **Arena backups**: nightly pb_data snapshot to the Hetzner Storage Box
+  (systemd timer on the VPS, 14-day local retention, offsite mirror).
+
 ## [1.1.2] — 2026-06-12
 
 ### Changed (game feel, from first playtest feedback)
