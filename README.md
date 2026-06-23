@@ -65,6 +65,8 @@ actual phase commits (with demo data), so you can watch the app grow:
 
 ## Architecture
 
+<p align="center"><img src="docs/schema.svg" alt="Komorebi data model: one shared schema (project, column, task, tag, event, note, …) read by five views — today, kanban, calendar, notes, pomodoro; the same task is a list item, a board card, and a calendar entry" width="680"></p>
+
 ```
 lib/
 ├── main.dart              # entry point — opens DB, no blocking I/O before first frame

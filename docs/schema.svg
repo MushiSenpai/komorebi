@@ -1,0 +1,36 @@
+<svg viewBox="0 0 680 365" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kt kd">
+<title id="kt">Komorebi data model</title>
+<desc id="kd">One shared schema (project, column, task, tag, event, note, and more) is read by five views — today, kanban, calendar, notes, pomodoro. The same task appears as a list item, a board card, and a calendar entry.</desc>
+<rect x="0" y="0" width="680" height="365" rx="14" fill="#0b0e14"/>
+<defs><marker id="g" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e8a33d"/></marker><marker id="m" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6270"/></marker></defs>
+<g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <text x="24" y="34" font-size="15" font-weight="500" fill="#e6e1d7">komorebi — one schema, many <tspan fill="#e8a33d">views</tspan></text>
+  <rect x="24" y="54" width="632" height="96" rx="12" fill="#0c1119" stroke="#b07d2e"/>
+  <text x="40" y="76" font-size="12" font-weight="500" fill="#e6e1d7">shared data model · drift / sqlite</text>
+  <g text-anchor="middle" font-size="11">
+    <rect x="40" y="90" width="86" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="83" y="114" fill="#8a8f98">project</text>
+    <rect x="134" y="90" width="80" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="174" y="114" fill="#8a8f98">column</text>
+    <rect x="222" y="90" width="92" height="40" rx="8" fill="#11151f" stroke="#e8a33d"/><text x="268" y="114" fill="#e6e1d7" font-weight="500">task</text>
+    <rect x="322" y="90" width="64" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="354" y="114" fill="#8a8f98">tag</text>
+    <rect x="394" y="90" width="78" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="433" y="114" fill="#8a8f98">event</text>
+    <rect x="480" y="90" width="64" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="512" y="114" fill="#8a8f98">note</text>
+    <rect x="552" y="90" width="96" height="40" rx="8" fill="#11151f" stroke="#3a4252"/><text x="600" y="111" fill="#5b6270" font-size="10">+ pomodoro,</text><text x="600" y="123" fill="#5b6270" font-size="10">routine, reminder</text>
+  </g>
+  <text x="217" y="178" font-size="10" fill="#e8a33d" text-anchor="middle">one task — three lenses</text>
+  <g fill="none" stroke-width="1.5">
+    <path d="M89,150 L89,234" stroke="#e8a33d" marker-end="url(#g)"/>
+    <path d="M217,150 L217,234" stroke="#e8a33d" marker-end="url(#g)"/>
+    <path d="M345,150 L345,234" stroke="#e8a33d" marker-end="url(#g)"/>
+    <path d="M469,150 L469,234" stroke="#5b6270" marker-end="url(#m)"/>
+    <path d="M592,150 L592,234" stroke="#5b6270" marker-end="url(#m)"/>
+  </g>
+  <g text-anchor="middle">
+    <rect x="30" y="236" width="118" height="76" rx="10" fill="#11151f" stroke="#3a4252"/><text x="89" y="262" font-size="13" font-weight="500" fill="#e6e1d7">today / todo</text><text x="89" y="281" font-size="10" fill="#8a8f98">list lens</text>
+    <rect x="158" y="236" width="118" height="76" rx="10" fill="#11151f" stroke="#3a4252"/><text x="217" y="262" font-size="13" font-weight="500" fill="#e6e1d7">kanban</text><text x="217" y="281" font-size="10" fill="#8a8f98">board lens</text>
+    <rect x="286" y="236" width="118" height="76" rx="10" fill="#11151f" stroke="#3a4252"/><text x="345" y="262" font-size="13" font-weight="500" fill="#e6e1d7">calendar</text><text x="345" y="281" font-size="10" fill="#8a8f98">time lens</text>
+    <rect x="414" y="236" width="110" height="76" rx="10" fill="#11151f" stroke="#3a4252"/><text x="469" y="262" font-size="13" font-weight="500" fill="#e6e1d7">notes</text><text x="469" y="281" font-size="10" fill="#8a8f98">[[wiki-links]]</text>
+    <rect x="534" y="236" width="116" height="76" rx="10" fill="#11151f" stroke="#3a4252"/><text x="592" y="262" font-size="13" font-weight="500" fill="#e6e1d7">pomodoro</text><text x="592" y="281" font-size="10" fill="#8a8f98">focus timer</text>
+  </g>
+  <text x="24" y="340" font-size="11" fill="#8a8f98">the same task is a list item, a kanban card, and a calendar entry — edit it once, it updates everywhere.</text>
+</g>
+</svg>
